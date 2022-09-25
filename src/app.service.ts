@@ -3,6 +3,11 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class AppService {
   constructor(private airtableService: AirTableService) {}
+  getHello() {
+    return {
+      message: `Hello! I'm running`,
+    };
+  }
   getVideosInfos() {
     return this.airtableService.getAirtableVideosFieldsInfos();
   }

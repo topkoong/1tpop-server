@@ -7,6 +7,11 @@ import { AuthGuard } from '@nestjs/passport';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @Get('/')
+  @UseGuards(AuthGuard('api-key'))
+  getHello() {
+    return this.appService.getHello();
+  }
   @Get('/videos')
   @UseGuards(AuthGuard('api-key'))
   getVideos() {

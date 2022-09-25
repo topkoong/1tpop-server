@@ -171,7 +171,7 @@ export class AirTableService {
           );
           return youtubeVideosInfos;
         }
-        throw new Error('YouTube new video information is not available');
+        return [];
       }
       throw new Error('Airtable video id is not available');
     } catch (error) {
@@ -205,6 +205,11 @@ export class AirTableService {
   async insertVideoInfos() {
     try {
       const newVideosInfos = await this.getNewVideosInfos();
+      if (isEmpty(newVideosInfos)) {
+        return {
+          message: 'No new videos to insert',
+        };
+      }
       const transformedVideoInfos =
         this.transformVideoCreatePayload(newVideosInfos);
       if (!isEmpty(transformedVideoInfos)) {
