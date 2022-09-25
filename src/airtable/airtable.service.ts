@@ -167,7 +167,7 @@ export class AirTableService {
         const newVideoIds = xor(videoIds, videosInfosIds);
         if (!isEmpty(newVideoIds)) {
           const youtubeVideosInfos = await this.youtubeService.getVideosInfos(
-            videoIds as string[],
+            newVideoIds as string[],
           );
           return youtubeVideosInfos;
         }
@@ -204,17 +204,19 @@ export class AirTableService {
 
   async insertVideoInfos() {
     try {
-      const videosInfos = await this.getNewVideosInfos();
+      const newVideosInfos = await this.getNewVideosInfos();
+      console.log(newVideosInfos);
       const transformedVideoInfos =
-        this.transformVideoCreatePayload(videosInfos);
+        this.transformVideoCreatePayload(newVideosInfos);
       if (!isEmpty(transformedVideoInfos)) {
         console.log(
           'transformedVideoInfos: ',
           JSON.stringify(transformedVideoInfos, undefined, 2),
         );
-        await this.videoUrlsBase(VIDEO_INFO_TABLE).create(
+        const res = await this.videoUrlsBase(VIDEO_INFO_TABLE).create(
           transformedVideoInfos,
         );
+        return res;
       } else {
         console.error('Airtable Video information is not available.');
         throw new Error('Airtable Video information is not available.');
