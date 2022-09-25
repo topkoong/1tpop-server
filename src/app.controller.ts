@@ -1,4 +1,4 @@
-import { Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
 
 import { AppService } from './app.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -14,19 +14,36 @@ export class AppController {
   // }
   @Get('/videos')
   @UseGuards(AuthGuard('api-key'))
-  getVideoUrls() {
+  getVideos() {
     return this.appService.getVideos();
   }
+  @Get('/videos/urls')
+  @UseGuards(AuthGuard('api-key'))
+  getVideoUrls() {
+    return this.appService.getVideoUrls();
+  }
 
-  @Post('/videos')
+  @Post('/videos/infos')
   @UseGuards(AuthGuard('api-key'))
   insertVideoInfos() {
     this.appService.insertVideoInfos();
   }
 
-  @Get('/videoinfos')
+  @Put('/videos/infos')
+  @UseGuards(AuthGuard('api-key'))
+  updateVideoInfos() {
+    this.appService.updateVideoInfos();
+  }
+
+  @Get('/videos/infos')
   @UseGuards(AuthGuard('api-key'))
   getVideosInfos() {
     return this.appService.getVideosInfos();
+  }
+
+  @Get('/videos/newinfos')
+  @UseGuards(AuthGuard('api-key'))
+  getNewVideosInfos() {
+    return this.appService.getNewVideosInfos();
   }
 }

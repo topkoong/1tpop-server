@@ -4,12 +4,21 @@ import { Injectable } from '@nestjs/common';
 export class AppService {
   constructor(private airtableService: AirTableService) {}
   getVideosInfos() {
-    return this.airtableService.getVideosInfos();
+    return this.airtableService.getAirtableVideosFieldsInfos();
+  }
+  getNewVideosInfos() {
+    return this.airtableService.getNewVideosInfos();
+  }
+  getVideoUrls() {
+    return this.airtableService.getVideoUrls();
   }
   getVideos() {
     return this.airtableService.getVideos();
   }
   insertVideoInfos() {
     return this.airtableService.insertVideoInfos();
+  }
+  updateVideoInfos() {
+    return this.airtableService.updateVideoInfos();
   }
 }
