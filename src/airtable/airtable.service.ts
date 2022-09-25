@@ -12,7 +12,7 @@ import url from 'url';
 
 interface VideoInfo {
   videoId: string;
-  song: string;
+  title: string;
   views: string;
   publishedAt: string;
   defaultImageUrl?: string;
@@ -76,7 +76,7 @@ export class AirTableService {
         return {
           fields: {
             videoId: id,
-            song: title,
+            title,
             views: +viewCount,
             publishedAt: publishedAt,
             defaultImageUrl: !isEmpty(thumbnails.default)
