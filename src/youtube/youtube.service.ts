@@ -24,8 +24,8 @@ export class YoutubeService {
       }
       throw new Error('YouTube video information is not available');
     } catch (error) {
-      console.error(error);
-      throw new Error('Cannot get YouTube video information');
+      console.error(error.message);
+      // throw new Error('Cannot get YouTube video information');
     }
   }
 }

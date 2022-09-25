@@ -22,13 +22,13 @@ export class AppController {
   @Post('/videos/infos')
   @UseGuards(AuthGuard('api-key'))
   insertVideoInfos() {
-    this.appService.insertVideoInfos();
+    return this.appService.insertVideoInfos();
   }
 
   @Put('/videos/infos')
   @UseGuards(AuthGuard('api-key'))
   updateVideoInfos() {
-    this.appService.updateVideoInfos();
+    return this.appService.updateVideoInfos();
   }
 
   @Get('/videos/infos')

@@ -3,7 +3,7 @@ import {
   VIDEO_INFO_TABLE,
   VIDEO_URLS_TABLE,
 } from './lib/common/airtable.constants';
-import { isEmpty, keyBy, merge, values, xor } from 'lodash';
+import { chunk, isEmpty, keyBy, merge, values, xor } from 'lodash';
 
 import Airtable from 'airtable';
 import { ConfigService } from '@nestjs/config';
@@ -114,8 +114,8 @@ export class AirTableService {
       }
       throw new Error('Airtable Video Urls are not available');
     } catch (error) {
-      console.error(error);
-      throw new Error('Cannot get video urls from Airtable');
+      console.error(error.message);
+      // throw new Error('Cannot get video urls from Airtable');
     }
   }
 
@@ -130,8 +130,8 @@ export class AirTableService {
       }
       throw new Error('Airtable Video Infos are not available');
     } catch (error) {
-      console.error(error);
-      throw new Error('Cannot get video infos from Airtable');
+      console.error(error.message);
+      // throw new Error('Cannot get video infos from Airtable');
     }
   }
 
@@ -145,8 +145,8 @@ export class AirTableService {
       }
       throw new Error('Airtable Video Infos are not available');
     } catch (error) {
-      console.error(error);
-      throw new Error('Cannot get video infos from Airtable');
+      console.error(error.message);
+      // throw new Error('Cannot get video infos from Airtable');
     }
   }
 
@@ -156,11 +156,11 @@ export class AirTableService {
         this.getVideoUrls(),
         this.getAirtableVideosFieldsInfos(),
       ]);
-      const videoIds = videoUrlsDb.map((field) =>
+      const videoIds = videoUrlsDb?.map((field) =>
         url.parse(field.url as string).pathname?.slice(1),
       );
       if (!isEmpty(videoIds) && !isEmpty(videosInfos)) {
-        const videosInfosIds = videosInfos.map(
+        const videosInfosIds = videosInfos?.map(
           (vdoInfo) => vdoInfo.videoId,
         ) as string[];
         // Creates an array of unique values that is the symmetric difference of the given arrays
@@ -175,15 +175,15 @@ export class AirTableService {
       }
       throw new Error('Airtable video id is not available');
     } catch (error) {
-      console.error(error);
-      throw new Error('Cannot get video urls from Airtable');
+      console.error(error.message);
+      // throw new Error('Cannot get video urls from Airtable');
     }
   }
 
   async getYouTubeVideosInfos() {
     try {
       const videoUrlsDb = await this.getVideoUrls();
-      const videoIds = videoUrlsDb.map((field) =>
+      const videoIds = videoUrlsDb?.map((field) =>
         url.parse(field.url as string).pathname?.slice(1),
       );
       if (!isEmpty(videoIds)) {
@@ -197,22 +197,17 @@ export class AirTableService {
       }
       throw new Error('Airtable video id is not available');
     } catch (error) {
-      console.error(error);
-      throw new Error('Cannot get video urls from Airtable');
+      console.error(error.message);
+      // throw new Error('Cannot get video urls from Airtable');
     }
   }
 
   async insertVideoInfos() {
     try {
       const newVideosInfos = await this.getNewVideosInfos();
-      console.log(newVideosInfos);
       const transformedVideoInfos =
         this.transformVideoCreatePayload(newVideosInfos);
       if (!isEmpty(transformedVideoInfos)) {
-        console.log(
-          'transformedVideoInfos: ',
-          JSON.stringify(transformedVideoInfos, undefined, 2),
-        );
         const res = await this.videoUrlsBase(VIDEO_INFO_TABLE).create(
           transformedVideoInfos,
         );
@@ -222,8 +217,10 @@ export class AirTableService {
         throw new Error('Airtable Video information is not available.');
       }
     } catch (error) {
-      console.error('Cannot get video information from Airtable');
-      throw new Error('Cannot get video information from Airtable');
+      console.error(error.message);
+      // throw new Error(
+      //   'Insert Video Info - Cannot get video information from Airtable',
+      // );
     }
   }
 
@@ -234,10 +231,12 @@ export class AirTableService {
         this.getAirtableVideosInfos(),
       ]);
       if (!isEmpty(youtubeVideosInfos) && !isEmpty(airtableVideosInfos)) {
-        const primaryKeyVideosInfo = airtableVideosInfos.map((record) => ({
-          airtableId: record.id,
-          videoId: record.fields.videoId,
-        }));
+        const primaryKeyVideosInfo = airtableVideosInfos?.map(
+          ({ id, fields: { videoId } }) => ({
+            airtableId: id,
+            videoId,
+          }),
+        );
         const mergedVideoInfos = values(
           merge(
             keyBy(primaryKeyVideosInfo, 'videoId'),
@@ -247,8 +246,15 @@ export class AirTableService {
         const transformedVideoInfos =
           this.transformVideoUpdatePayload(mergedVideoInfos);
         if (!isEmpty(transformedVideoInfos)) {
-          const res = await this.videoUrlsBase(VIDEO_INFO_TABLE).update(
-            transformedVideoInfos,
+          // Airtable limits the records up to 10 record objects
+          const chunkedVideoInfosPayloads = chunk(transformedVideoInfos, 10);
+          const res = await Promise.all(
+            chunkedVideoInfosPayloads.map(
+              async (chunkedVideoInfosPayload: any[]) =>
+                await this.videoUrlsBase(VIDEO_INFO_TABLE).update(
+                  chunkedVideoInfosPayload,
+                ),
+            ),
           );
           return res;
         } else {
@@ -256,10 +262,9 @@ export class AirTableService {
           throw new Error('Airtable Video information is not available.');
         }
       }
-      throw new Error('Cannot get video information from YouTubr');
+      throw new Error('Cannot get video information from YouTube');
     } catch (error) {
-      console.error('Cannot get video information from Airtable');
-      throw new Error('Cannot get video information from Airtable');
+      console.error(error.message);
     }
   }
 
