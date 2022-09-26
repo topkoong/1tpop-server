@@ -4,11 +4,20 @@ import {
   VIDEO_URLS_TABLE,
 } from './lib/common/airtable.constants';
 import { Inject, Injectable } from '@nestjs/common';
-import { chunk, isEmpty, keyBy, merge, values, xor } from 'lodash';
+import {
+  chunk,
+  intersectionBy,
+  isEmpty,
+  keyBy,
+  merge,
+  values,
+  xor,
+} from 'lodash';
 
 import Airtable from 'airtable';
 import { ConfigService } from '@nestjs/config';
 import { YoutubeService } from 'src/youtube/youtube.service';
+import _ from 'lodash';
 import moment from 'moment-timezone';
 import url from 'url';
 
@@ -298,9 +307,16 @@ export class AirTableService {
         .select({ view: 'Grid view' })
         .all();
       const videoInfosDb = videoInfoRecords.map((record) => record.fields);
-      const result = values(
-        merge(keyBy(videoUrlsDb, 'videoId'), keyBy(videoInfosDb, 'videoId')),
+      const filteredVideoUrlsDb = videoUrlsDb?.filter((vdoUrlDb) =>
+        videoInfosDb.find((infoDb) => vdoUrlDb.videoId === infoDb.videoId),
       );
+      const result = values(
+        merge(
+          keyBy(videoInfosDb, 'videoId'),
+          keyBy(filteredVideoUrlsDb, 'videoId'),
+        ),
+      );
+      console.log(result);
       return result;
     } catch (error) {
       console.error(error);
