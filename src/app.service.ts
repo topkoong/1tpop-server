@@ -26,4 +26,7 @@ export class AppService {
   updateVideoInfos() {
     return this.airtableService.updateVideoInfos();
   }
+  insertDailyVideoInfoLogs() {
+    return this.airtableService.insertDailyVideoInfoLogs();
+  }
 }

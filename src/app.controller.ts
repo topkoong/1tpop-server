@@ -30,6 +30,12 @@ export class AppController {
     return this.appService.insertVideoInfos();
   }
 
+  @Post('/videos/infos/daily')
+  @UseGuards(AuthGuard('api-key'))
+  insertDailyVideoInfoLogs() {
+    return this.appService.insertDailyVideoInfoLogs();
+  }
+
   @Put('/videos/infos')
   @UseGuards(AuthGuard('api-key'))
   updateVideoInfos() {

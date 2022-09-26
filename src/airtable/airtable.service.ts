@@ -1,13 +1,15 @@
-import { Inject, Injectable } from '@nestjs/common';
 import {
+  DAILY_VIDEO_INFO_LOGS_TABLE,
   VIDEO_INFO_TABLE,
   VIDEO_URLS_TABLE,
 } from './lib/common/airtable.constants';
+import { Inject, Injectable } from '@nestjs/common';
 import { chunk, isEmpty, keyBy, merge, values, xor } from 'lodash';
 
 import Airtable from 'airtable';
 import { ConfigService } from '@nestjs/config';
 import { YoutubeService } from 'src/youtube/youtube.service';
+import moment from 'moment-timezone';
 import url from 'url';
 
 interface VideoInfo {
@@ -59,6 +61,22 @@ export class AirTableService {
             highImageUrl: !isEmpty(high) ? high?.url : '',
             standardImageUrl: !isEmpty(standard) ? standard?.url : '',
             maxresImageUrl: !isEmpty(maxres) ? maxres?.url : '',
+          },
+        };
+      });
+      return transformedVideoInfos;
+    } else {
+      console.error('Airtable Video information is not available.');
+      throw new Error('Airtable Video information is not available.');
+    }
+  }
+  transformVideoCreateDailyLogsPayload(videosInfos: any) {
+    if (!isEmpty(videosInfos)) {
+      const transformedVideoInfos = videosInfos?.map((videoInfo: any) => {
+        return {
+          fields: {
+            ...videoInfo,
+            date: moment(new Date()).tz('Asia/Bangkok').format('l'),
           },
         };
       });
@@ -286,6 +304,32 @@ export class AirTableService {
       return result;
     } catch (error) {
       console.error(error);
+    }
+  }
+
+  async insertDailyVideoInfoLogs() {
+    try {
+      const airTableVideoInfos = await this.getAirtableVideosFieldsInfos();
+      const transformedVideoInfos =
+        this.transformVideoCreateDailyLogsPayload(airTableVideoInfos);
+      if (!isEmpty(transformedVideoInfos)) {
+        // Airtable limits the records up to 10 record objects
+        const chunkedVideoInfosPayloads = chunk(transformedVideoInfos, 10);
+        const res = await Promise.all(
+          chunkedVideoInfosPayloads.map(
+            async (chunkedVideoInfosPayload: any[]) =>
+              await this.videoUrlsBase(DAILY_VIDEO_INFO_LOGS_TABLE).create(
+                chunkedVideoInfosPayload,
+              ),
+          ),
+        );
+        return res;
+      } else {
+        console.error('Airtable Daily Video information is not available.');
+        throw new Error('Airtable Daily Video information is not available.');
+      }
+    } catch (error) {
+      console.error(error.message);
     }
   }
 }
