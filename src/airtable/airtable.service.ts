@@ -343,7 +343,6 @@ export class AirTableService {
 
   async getDailyVideoInfoLogs() {
     try {
-      const videoUrlsDb = await this.getVideoUrls();
       const dailyVideoInfoRecords = await this.videoUrlsBase(
         DAILY_VIDEO_INFO_LOGS_TABLE,
       )
@@ -360,7 +359,6 @@ export class AirTableService {
 
   async getDailyVideoInfoLog(videoId: string) {
     try {
-      const videoUrlsDb = await this.getVideoUrls();
       const dailyVideoInfoRecords = await this.videoUrlsBase(
         DAILY_VIDEO_INFO_LOGS_TABLE,
       )
