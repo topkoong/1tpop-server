@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 
 import { AppService } from './app.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -28,6 +28,18 @@ export class AppController {
   @UseGuards(AuthGuard('api-key'))
   insertVideoInfos() {
     return this.appService.insertVideoInfos();
+  }
+
+  @Get('/videos/infos/daily')
+  @UseGuards(AuthGuard('api-key'))
+  getDailyVideoInfoLogs() {
+    return this.appService.getDailyVideoInfoLogs();
+  }
+
+  @Get('/videos/:videoId/infos/daily/')
+  @UseGuards(AuthGuard('api-key'))
+  getDailyVideoInfoLog(@Param('videoId') videoId: string) {
+    return this.appService.getDailyVideoInfoLog(videoId);
   }
 
   @Post('/videos/infos/daily')

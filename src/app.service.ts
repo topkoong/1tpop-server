@@ -20,6 +20,12 @@ export class AppService {
   getVideos() {
     return this.airtableService.getVideos();
   }
+  getDailyVideoInfoLog(videoId: string) {
+    return this.airtableService.getDailyVideoInfoLog(videoId);
+  }
+  getDailyVideoInfoLogs() {
+    return this.airtableService.getDailyVideoInfoLogs();
+  }
   insertVideoInfos() {
     return this.airtableService.insertVideoInfos();
   }

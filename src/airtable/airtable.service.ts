@@ -4,15 +4,7 @@ import {
   VIDEO_URLS_TABLE,
 } from './lib/common/airtable.constants';
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  chunk,
-  intersectionBy,
-  isEmpty,
-  keyBy,
-  merge,
-  values,
-  xor,
-} from 'lodash';
+import { chunk, groupBy, isEmpty, keyBy, merge, values, xor } from 'lodash';
 
 import Airtable from 'airtable';
 import { ConfigService } from '@nestjs/config';
@@ -319,7 +311,7 @@ export class AirTableService {
       console.log(result);
       return result;
     } catch (error) {
-      console.error(error);
+      console.error(error.message);
     }
   }
 
@@ -344,6 +336,43 @@ export class AirTableService {
         console.error('Airtable Daily Video information is not available.');
         throw new Error('Airtable Daily Video information is not available.');
       }
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+
+  async getDailyVideoInfoLogs() {
+    try {
+      const videoUrlsDb = await this.getVideoUrls();
+      const dailyVideoInfoRecords = await this.videoUrlsBase(
+        DAILY_VIDEO_INFO_LOGS_TABLE,
+      )
+        .select({ view: 'View by Day' })
+        .all();
+      const dailyVideoInfoDb = dailyVideoInfoRecords.map(
+        (record) => record.fields,
+      );
+      return groupBy(dailyVideoInfoDb, (video) => video.videoId);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+
+  async getDailyVideoInfoLog(videoId: string) {
+    try {
+      const videoUrlsDb = await this.getVideoUrls();
+      const dailyVideoInfoRecords = await this.videoUrlsBase(
+        DAILY_VIDEO_INFO_LOGS_TABLE,
+      )
+        .select({
+          view: 'View by Day',
+          filterByFormula: `videoId="${videoId}"`,
+        })
+        .all();
+      const dailyVideoInfoDb = dailyVideoInfoRecords.map(
+        (record) => record.fields,
+      );
+      return dailyVideoInfoDb;
     } catch (error) {
       console.error(error.message);
     }
