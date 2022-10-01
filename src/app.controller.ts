@@ -105,4 +105,9 @@ export class AppController {
   getNewVideosInfos() {
     return this.appService.getNewVideosInfos();
   }
+  @Get('/images/sliders')
+  @UseGuards(AuthGuard('api-key'))
+  getImageSliders() {
+    return this.appService.getImageSliders();
+  }
 }

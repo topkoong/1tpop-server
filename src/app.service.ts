@@ -35,4 +35,7 @@ export class AppService {
   insertDailyVideoInfoLogs() {
     return this.airtableService.insertDailyVideoInfoLogs();
   }
+  getImageSliders() {
+    return this.airtableService.getImageSliders();
+  }
 }

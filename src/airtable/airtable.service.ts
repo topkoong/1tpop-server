@@ -1,5 +1,6 @@
 import {
   DAILY_VIDEO_INFO_LOGS_TABLE,
+  IMAGE_SLIDERS,
   VIDEO_INFO_TABLE,
   VIDEO_URLS_TABLE,
 } from './lib/common/airtable.constants';
@@ -375,6 +376,23 @@ export class AirTableService {
         (record) => record.fields,
       );
       return dailyVideoInfoDb;
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+
+  async getImageSliders() {
+    try {
+      const imageSlidersRecords = await this.videoUrlsBase(IMAGE_SLIDERS)
+        .select({
+          view: 'Grid view',
+          filterByFormula: 'isActive=1',
+          maxRecords: 5,
+          sort: [{ field: 'order', direction: 'asc' }],
+        })
+        .all();
+      const imageSlidersDb = imageSlidersRecords.map((record) => record.fields);
+      return imageSlidersDb;
     } catch (error) {
       console.error(error.message);
     }
