@@ -17,8 +17,8 @@ export class AppService {
   getVideoUrls() {
     return this.airtableService.getVideoUrls();
   }
-  getVideos() {
-    return this.airtableService.getVideos();
+  getVideos(sort: string, limit: number) {
+    return this.airtableService.getVideos(sort, limit);
   }
   getDailyVideoInfoLog(videoId: string) {
     return this.airtableService.getDailyVideoInfoLog(videoId);

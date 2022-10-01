@@ -292,11 +292,15 @@ export class AirTableService {
     }
   }
 
-  async getVideos() {
+  async getVideos(sort?: string, limit?: number) {
     try {
       const videoUrlsDb = await this.getVideoUrls();
       const videoInfoRecords = await this.videoUrlsBase(VIDEO_INFO_TABLE)
-        .select({ view: 'Grid view' })
+        .select({
+          view: 'Grid view',
+          ...(limit && { maxRecords: limit }),
+          ...(sort && { sort: [{ field: sort, direction: 'desc' }] }),
+        })
         .all();
       const videoInfosDb = videoInfoRecords.map((record) => record.fields);
       const filteredVideoUrlsDb = videoUrlsDb?.filter((vdoUrlDb) =>

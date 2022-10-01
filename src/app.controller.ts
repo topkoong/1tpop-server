@@ -1,7 +1,36 @@
-import { Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  Post,
+  Put,
+  UseGuards,
+  DefaultValuePipe,
+  ParseIntPipe,
+} from '@nestjs/common';
 
 import { AppService } from './app.service';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiQuery, ApiPropertyOptional } from '@nestjs/swagger';
+
+export class SortDTO {
+  @ApiPropertyOptional({
+    default: 'views',
+    description:
+      'A list of sort videos that specifies how the videos will be ordered. Each sort video must have a field key specifying the name of the field to sort on, and an optional direction key that is either "asc" or "desc". The default direction is "desc".',
+  })
+  sort: string;
+}
+
+export class LimitDTO {
+  @ApiPropertyOptional({
+    default: 100,
+    description:
+      'The maximum total number of videos that will be returned in your requests.',
+  })
+  limit: number;
+}
 
 @Controller()
 export class AppController {
@@ -13,9 +42,20 @@ export class AppController {
     return this.appService.getHello();
   }
   @Get('/videos')
+  @ApiQuery({
+    name: 'sort',
+    type: SortDTO,
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: LimitDTO,
+  })
   @UseGuards(AuthGuard('api-key'))
-  getVideos() {
-    return this.appService.getVideos();
+  getVideos(
+    @Query('sort') sort = 'views',
+    @Query('limit', new DefaultValuePipe(100), ParseIntPipe) limit = 100,
+  ) {
+    return this.appService.getVideos(sort, limit);
   }
 
   @Get('/videos/urls')
