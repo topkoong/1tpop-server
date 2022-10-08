@@ -5,7 +5,16 @@ import {
   VIDEO_URLS_TABLE,
 } from './lib/common/airtable.constants';
 import { Inject, Injectable } from '@nestjs/common';
-import { chunk, groupBy, isEmpty, keyBy, merge, values, xor } from 'lodash';
+import {
+  chunk,
+  flatten,
+  groupBy,
+  isEmpty,
+  keyBy,
+  merge,
+  values,
+  xor,
+} from 'lodash';
 
 import Airtable from 'airtable';
 import { ConfigService } from '@nestjs/config';
@@ -207,11 +216,18 @@ export class AirTableService {
         url.parse(field.url as string).pathname?.slice(1),
       );
       if (!isEmpty(videoIds)) {
-        const youtubeVideosInfos = await this.youtubeService.getVideosInfos(
-          videoIds as string[],
+        // YouTube limits the video ids up to 50 ids
+        const chunkedTenVideoIds = chunk(videoIds, 50);
+        const youtubeVideosInfos = await Promise.all(
+          chunkedTenVideoIds.map(
+            async (chunkedTenVideoId: any[]) =>
+              await this.youtubeService.getVideosInfos(
+                chunkedTenVideoId as string[],
+              ),
+          ),
         );
-        if (!isEmpty(youtubeVideosInfos)) {
-          return youtubeVideosInfos;
+        if (!isEmpty(flatten(youtubeVideosInfos))) {
+          return flatten(youtubeVideosInfos);
         }
         throw new Error('YouTube video information is not available');
       }
