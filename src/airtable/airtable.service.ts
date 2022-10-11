@@ -249,10 +249,10 @@ export class AirTableService {
       const transformedVideoInfos =
         this.transformVideoCreatePayload(newVideosInfos);
       if (!isEmpty(transformedVideoInfos)) {
-        const res = await this.videoUrlsBase(VIDEO_INFO_TABLE).create(
+        await this.videoUrlsBase(VIDEO_INFO_TABLE).create(
           transformedVideoInfos,
         );
-        return res;
+        return { message: 'Video information has been inserted successfully' };
       } else {
         console.error('Airtable Video information is not available.');
         throw new Error('Airtable Video information is not available.');
@@ -352,7 +352,9 @@ export class AirTableService {
               ),
           ),
         );
-        return { message: 'Video information has been inserted successfully' };
+        return {
+          message: 'Dialy Video information has been inserted successfully',
+        };
       } else {
         console.error('Airtable Daily Video information is not available.');
         throw new Error('Airtable Daily Video information is not available.');
