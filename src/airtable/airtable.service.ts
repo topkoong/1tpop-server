@@ -289,7 +289,7 @@ export class AirTableService {
         if (!isEmpty(transformedVideoInfos)) {
           // Airtable limits the records up to 10 record objects
           const chunkedVideoInfosPayloads = chunk(transformedVideoInfos, 10);
-          const res = await Promise.all(
+          await Promise.all(
             chunkedVideoInfosPayloads.map(
               async (chunkedVideoInfosPayload: any[]) =>
                 await this.videoUrlsBase(VIDEO_INFO_TABLE).update(
@@ -297,7 +297,7 @@ export class AirTableService {
                 ),
             ),
           );
-          return res;
+          return { message: 'Video information has been updated successfully' };
         } else {
           console.error('Airtable Video information is not available.');
           throw new Error('Airtable Video information is not available.');
@@ -344,7 +344,7 @@ export class AirTableService {
       if (!isEmpty(transformedVideoInfos)) {
         // Airtable limits the records up to 10 record objects
         const chunkedVideoInfosPayloads = chunk(transformedVideoInfos, 10);
-        const res = await Promise.all(
+        await Promise.all(
           chunkedVideoInfosPayloads.map(
             async (chunkedVideoInfosPayload: any[]) =>
               await this.videoUrlsBase(DAILY_VIDEO_INFO_LOGS_TABLE).create(
@@ -352,7 +352,7 @@ export class AirTableService {
               ),
           ),
         );
-        return res;
+        return { message: 'Video information has been inserted successfully' };
       } else {
         console.error('Airtable Daily Video information is not available.');
         throw new Error('Airtable Daily Video information is not available.');
