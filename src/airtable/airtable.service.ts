@@ -19,7 +19,6 @@ import {
 import Airtable from 'airtable';
 import { ConfigService } from '@nestjs/config';
 import { YoutubeService } from 'src/youtube/youtube.service';
-import _ from 'lodash';
 import moment from 'moment-timezone';
 import url from 'url';
 
@@ -35,9 +34,9 @@ interface VideoInfo {
   maxresImageUrl?: string;
 }
 
-interface VideoInfoField {
-  fields: VideoInfo;
-}
+// interface VideoInfoField {
+//   fields: VideoInfo;
+// }
 
 @Injectable()
 export class AirTableService {
@@ -249,8 +248,14 @@ export class AirTableService {
       const transformedVideoInfos =
         this.transformVideoCreatePayload(newVideosInfos);
       if (!isEmpty(transformedVideoInfos)) {
-        await this.videoUrlsBase(VIDEO_INFO_TABLE).create(
-          transformedVideoInfos,
+        const chunkedVideoInfosPayloads = chunk(transformedVideoInfos, 10);
+        await Promise.all(
+          chunkedVideoInfosPayloads.map(
+            async (chunkedVideoInfosPayload: any[]) =>
+              await this.videoUrlsBase(VIDEO_INFO_TABLE).create(
+                chunkedVideoInfosPayload,
+              ),
+          ),
         );
         return { message: 'Video information has been inserted successfully' };
       } else {
