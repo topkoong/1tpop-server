@@ -53,7 +53,7 @@ export class AppController {
   @UseGuards(AuthGuard('api-key'))
   getVideos(
     @Query('sort') sort = 'views',
-    @Query('limit', new DefaultValuePipe(100), ParseIntPipe) limit = 100,
+    @Query('limit', new DefaultValuePipe(150), ParseIntPipe) limit = 150,
   ) {
     return this.appService.getVideos(sort, limit);
   }
